@@ -1,7 +1,8 @@
-<button id="rowsToColumns">Rows to Columns</button>
-<button id="columnsToRows">Columns to Rows</button>
+<div class="buttonWrapper">
+  <button id="rowsToColumns">Rows to Columns</button>
+  <button id="columnsToRows">Columns to Rows</button>
+</div>
 <script>
-
   document.getElementById('rowsToColumns').onclick = () => {
     parent.postMessage({ pluginMessage: { type: 'orientation-swap', orientation: 'columns' } }, '*')
   }
@@ -9,5 +10,28 @@
   document.getElementById('columnsToRows').onclick = () => {
     parent.postMessage({ pluginMessage: { type: 'orientation-swap', orientation: 'rows' } }, '*')
   }
-
 </script>
+<style>
+  .buttonWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    gap: 16px;
+  }
+
+  button {
+    padding: 12px;
+    border-radius: 24px;
+    color: #ffffff;
+    background-color: #002677;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  button:hover {
+    background-color: #0342C9;
+  }
+</style>
