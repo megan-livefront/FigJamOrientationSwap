@@ -5,9 +5,10 @@ type Position = {
   y: number;
 };
 
-// Calls to "parent.postMessage" from within the HTML page will trigger this
-// callback. The callback will be passed the "pluginMessage" property of the
-// posted message.
+/**
+ * Calls to "parent.postMessage" from within the HTML page will trigger this callback.
+ * The callback will be passed the "pluginMessage" property of the posted message.
+ */
 figma.ui.onmessage = (msg: { type: string; orientation: string }) => {
   if (msg.type === "orientation-swap") {
     const headerAxis = msg.orientation === "columns" ? "x" : "y";
@@ -28,14 +29,14 @@ function swapOrientation(
     const headerAxisHigh = currentViewPort[headerAxis] + 10;
     const headers: SceneNode[] = [];
     const nonHeaderNodes: SceneNode[] = [];
-    const headersOriginalPosition: Position[] = [];
+    const originalPositionHeaders: Position[] = [];
     selectedNodes.forEach((node) => {
       if (
         node[headerAxis] <= headerAxisHigh &&
         node[headerAxis] >= headerAxisLow
       ) {
         headers.push(node);
-        headersOriginalPosition.push({ x: node.x, y: node.y });
+        originalPositionHeaders.push({ x: node.x, y: node.y });
       } else {
         nonHeaderNodes.push(node);
       }
@@ -51,34 +52,38 @@ function swapOrientation(
       }
     });
 
-    const nodesInEachHeader: SceneNode[][] = [];
+    const nodesForEachHeader: SceneNode[][] = [];
 
-    headersOriginalPosition.forEach((header) => {
-      const headerOppositeEdge = headerAxis === "y" ? "x" : "y";
-      const headerLow = header[headerOppositeEdge] - 10;
-      const headerHigh = header[headerOppositeEdge] + 10;
-      const nodesInHeader: SceneNode[] = [];
+    originalPositionHeaders.forEach((originalPositionHeader) => {
+      const headerOppositeAxis = headerAxis === "y" ? "x" : "y";
+      const headerOppositeAxisLow =
+        originalPositionHeader[headerOppositeAxis] - 10;
+      const headerOppositeAxisHigh =
+        originalPositionHeader[headerOppositeAxis] + 10;
+      const nodesForHeader: SceneNode[] = [];
       nonHeaderNodes.forEach((nonHeaderNode) => {
         if (
-          nonHeaderNode[headerOppositeEdge] <= headerHigh &&
-          nonHeaderNode[headerOppositeEdge] >= headerLow
+          nonHeaderNode[headerOppositeAxis] <= headerOppositeAxisHigh &&
+          nonHeaderNode[headerOppositeAxis] >= headerOppositeAxisLow
         ) {
-          nodesInHeader.push(nonHeaderNode);
+          nodesForHeader.push(nonHeaderNode);
         }
       });
-      nodesInEachHeader.push(nodesInHeader);
+      nodesForEachHeader.push(nodesForHeader);
     });
 
-    nodesInEachHeader.forEach((nodesInHeader, index) => {
-      nodesInHeader.forEach((nodeInHeader, nodeIndex) => {
+    nodesForEachHeader.forEach((nodesForHeader, headerIndex) => {
+      nodesForHeader.forEach((nodeForHeader, nodeIndex) => {
         if (headerAxis === "y") {
-          nodeInHeader.x =
-            headers[index].x + (nodeInHeader.width + 45) * (nodeIndex + 1);
-          nodeInHeader.y = headers[index].y;
+          nodeForHeader.x =
+            headers[headerIndex].x +
+            (nodeForHeader.width + 45) * (nodeIndex + 1);
+          nodeForHeader.y = headers[headerIndex].y;
         } else {
-          nodeInHeader.x = headers[index].x;
-          nodeInHeader.y =
-            headers[index].y + (nodeInHeader.height + 45) * (nodeIndex + 1);
+          nodeForHeader.x = headers[headerIndex].x;
+          nodeForHeader.y =
+            headers[headerIndex].y +
+            (nodeForHeader.height + 45) * (nodeIndex + 1);
         }
       });
     });
