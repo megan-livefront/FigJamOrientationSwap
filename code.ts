@@ -31,7 +31,6 @@ figma.ui.onmessage = (msg: { type: string; orientation: string }) => {
       const colHeadersOriginalPosition: Position[] = [];
       figma.currentPage.selection.forEach((node) => {
         if (node.type === "STICKY") {
-          console.log(node.text.characters, "x:", node.x, "y:", node.y);
           if (node.x <= rowNodeXHigh && node.x >= rowNodeXLow) {
             columnHeaders.push(node);
             colHeadersOriginalPosition.push({ x: node.x, y: node.y });
@@ -66,6 +65,49 @@ figma.ui.onmessage = (msg: { type: string; orientation: string }) => {
           nodeInColumn.y =
             columnHeaders[index].y +
             (nodeInColumn.height + 45) * (nodeIndex + 1);
+        });
+      });
+    } else if (msg.orientation === "rows" && currentViewPort) {
+      const columnNodeYLow = currentViewPort.y - 10;
+      const columnNodeYHigh = currentViewPort.y + 10;
+      const rowHeaders: StickyNode[] = [];
+      const otherNodes: StickyNode[] = [];
+      const rowHeadersOriginalPosition: Position[] = [];
+      figma.currentPage.selection.forEach((node) => {
+        if (node.type === "STICKY") {
+          if (node.y <= columnNodeYHigh && node.y >= columnNodeYLow) {
+            rowHeaders.push(node);
+            rowHeadersOriginalPosition.push({ x: node.x, y: node.y });
+          } else {
+            otherNodes.push(node);
+          }
+        }
+      });
+
+      rowHeaders.forEach((header, index) => {
+        header.y = currentViewPort.y + (header.height + 45) * index;
+        header.x = currentViewPort.x;
+      });
+
+      const nodesInEachRow: StickyNode[][] = [];
+
+      rowHeadersOriginalPosition.forEach((header) => {
+        const headerXLow = header.x - 10;
+        const headerXHigh = header.x + 10;
+        const nodesInHeader: StickyNode[] = [];
+        otherNodes.forEach((otherNode) => {
+          if (otherNode.x <= headerXHigh && otherNode.x >= headerXLow) {
+            nodesInHeader.push(otherNode);
+          }
+        });
+        nodesInEachRow.push(nodesInHeader);
+      });
+
+      nodesInEachRow.forEach((nodesInRow, index) => {
+        nodesInRow.forEach((nodesInRow, nodeIndex) => {
+          nodesInRow.x =
+            rowHeaders[index].x + (nodesInRow.width + 45) * (nodeIndex + 1);
+          nodesInRow.y = rowHeaders[index].y;
         });
       });
     }
