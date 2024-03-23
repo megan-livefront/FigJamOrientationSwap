@@ -1,0 +1,13 @@
+<button id="rowsToColumns">Rows to Columns</button>
+<button id="columnsToRows">Columns to Rows</button>
+<script>
+
+  document.getElementById('rowsToColumns').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'orientation-swap', orientation: 'columns' } }, '*')
+  }
+
+  document.getElementById('columnsToRows').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'orientation-swap', orientation: 'rows' } }, '*')
+  }
+
+</script>
